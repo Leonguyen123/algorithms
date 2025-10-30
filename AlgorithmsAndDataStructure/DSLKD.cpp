@@ -23,7 +23,7 @@ void initializer(PTR &First){
 void insert_First(PTR &First, int info){
     PTR p = new node;
     p->info = info;
-    p->next = First; // tại vì cần trỏ đến địa chỉ vùng nhớ của next hiện tại.
+    p->next = First; // Tại vì cần trỏ đến địa chỉ vùng nhớ của next hiện tại.
     First = p; // Sau đó gán địa chỉ First bằng địa chỉ của p hiện tại.
 }
 

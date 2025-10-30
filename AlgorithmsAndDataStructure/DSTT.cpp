@@ -8,21 +8,23 @@ const int MAXLIST = 1000;
 // Cấp phát tĩnh
 struct LIST {
     int n;
-    int nodes[MAXLIST];
+    int *nodes[MAXLIST];
 } LIST;
-
-// Cấp phát động
-struct LIST2 {
-    int n;
-    int *nodes;
-} LIST2;
 
 struct SV
 {
   int maso;
   char ho[50];
   char ten[10];
-}; // Cấp phát một vùng nhớ cố định MAXLIST với kiểu dữ liệu là Sinhvien, mỗi node sẽ trỏ tới một vùng nhớ SV.
+};
+
+// Cấp phát động
+struct ListSV {
+    int n = 0;
+    SV *nodes; // Tạo một mảng con trỏ kiểu int nhưng hiện tại chưa gán con trỏ đó vào vùng nhớ.
+};
+
+// Cấp phát một vùng nhớ cố định MAXLIST với kiểu dữ liệu là Sinhvien, mỗi node sẽ trỏ tới một vùng nhớ SV.
 // Với số lượng n vùng nhớ
 struct danhsach
 {
@@ -68,7 +70,7 @@ int deleteIndex(danhsach &ds, int i){
 }
 
 int traverse(danhsach &ds){
-    // vị trí thứ i này phải lớn hơn 0.
+    // Vị trí thứ i này phải lớn hơn 0.
     // Danh sách này không được rỗng.
     // Vị trí thứ i này không lớn hơn ds.n
     if(kiemTraRong(ds)){
@@ -163,6 +165,57 @@ void selection_sort(danhsach &ds){
     }
 }
 
+void sinhvienInitiatier(ListSV &ds){
+    
+    cout << "Enter student numbers: ";
+    cin >> ds.n;
+    
+    ds.nodes = new SV[ds.n];
+    
+    for (int i = 0; i < ds.n; i++) {
+        SV sv;
+        cout << "Code: ";
+        cin >> sv.maso;
+        cin.ignore(); // loại bỏ '\n' sau khi nhập maso
+        cout << "Fisrt name: ";
+        cin.getline(sv.ten, 50);
+        cout << "Last name: ";
+        cin.getline(sv.ho, 50);
+        
+        ds.nodes[i] = sv;
+    }
+}
+
+void traverseSV(ListSV &ds){
+    for (int i = 0; i < ds.n; i++) {
+        cout << "Ma so: " << ds.nodes[i].maso
+        << ", Ho: " << ds.nodes[i].ho
+        << ", Ten: " << ds.nodes[i].ten << endl
+        << "=================================" << endl;
+    }
+}
+
+int findSV(ListSV &ds, string info){
+    if(ds.n <= 0) return -1;
+    int vitri = -1;
+    
+    for(int i = 0; i < ds.n; i++){
+        if(ds.nodes[i].ten == info){
+            vitri = i;
+        }
+    }
+    
+    if(vitri >= 0){
+        cout << "Ma so: " << ds.nodes[vitri].maso
+        << ", Ho: " << ds.nodes[vitri].ho
+        << ", Ten: " << ds.nodes[vitri].ten << endl
+        << "=================================" << endl;
+    }else{
+        cout << "Not found " << endl;
+    }
+    
+    return -1;
+}
 
 int menus(){
     int menu;
@@ -177,6 +230,10 @@ int menus(){
     cout << "7. Sắp xếp danh sách tăng dần (Bubble sort)" << endl;
     cout << "8. Sắp xếp danh sách tăng dần (Selection sort)" << endl;
     cout << "9. Thêm một giá trị vào một mảng đã sắp xếp" << endl;
+    cout << "============================================" << endl;
+    cout << "10. Khởi tạo mảng sinh viên và nhập sinh viên" << endl;
+    cout << "11. Duyệt sanh sách sinh viên" << endl;
+    cout << "12. Tìm kiếm sinh viên bằng tên" << endl;
 
     cout << "Nhập chức năng: ";
     cin >> menu;
@@ -186,6 +243,7 @@ int menus(){
  
 int main() {
     danhsach ds;    // Khai báo biến ds
+    ListSV dssv;
     int loop = true;
     
     while(loop)  {
@@ -245,6 +303,20 @@ int main() {
                 cin >> infosorted;
                 insert_item_sorted(ds, infosorted);
                 break;
+            case 10:
+                sinhvienInitiatier(dssv);
+                break;
+            case 11:
+                traverseSV(dssv);
+                break;
+            case 12: {
+                string name;
+                cout << "Nhập tên sinh viên cần tìm: ";
+                cin.ignore(); // Xóa bộ nhớ đệm còn lại sau khi nhập số ở menu
+                getline(cin, name); // Nhập cả chuỗi, bao gồm khoảng trắng
+                findSV(dssv, name); // Hàm tìm sinh viên theo tên
+                break;
+            }
             default:
                 break;
         }
