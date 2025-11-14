@@ -1,11 +1,10 @@
 #include <iostream>
-// #include "./DSLKD"
 
 using namespace std;
 
 const int MAXLIST = 1000;
 
-// Cấp phát tĩnh
+// Cấp phát tĩnh, bộ nhớ được lưu vào Stack và tư động giải phóng khi nơi khai báo của nó kết thúc
 struct LIST {
     int n;
     int *nodes[MAXLIST];
@@ -18,18 +17,22 @@ struct SV
   char ten[10];
 };
 
-// Cấp phát động
+// Cấp phát động Heap (Free Store), lưu ý cần phải giải phóng thủ công khi xong hàm bằng delete.
+// SV *nodes; Tạo một mảng con trỏ kiểu SV nhưng hiện tại chưa gán con trỏ đó vào vùng nhớ.
 struct ListSV {
     int n = 0;
-    SV *nodes; // Tạo một mảng con trỏ kiểu int nhưng hiện tại chưa gán con trỏ đó vào vùng nhớ.
+    SV *nodes = nullptr;
 };
+// cấp phát động
+// ListSV list;
+// list.nodes = new SV[100]; // cấp phát cho 100 sinh viên
+// list.n = 100;
+// Trường hợp cần mở rộng vùng nhớ cần phải cấp phát một vùng nhớ lớn hơn và chuyển toàn bộ qua vùng nhớ mới -> giải phóng vùng nhớ hiện tại.
 
-// Cấp phát một vùng nhớ cố định MAXLIST với kiểu dữ liệu là Sinhvien, mỗi node sẽ trỏ tới một vùng nhớ SV.
-// Với số lượng n vùng nhớ
 struct danhsach
 {
   int n = 0;
-  int nodes[MAXLIST]; // Khi khai báo thì các node được cấp chỉ chứa các con trỏ và chưa trỏ đến vùng nhớ nào cả.
+  int nodes[MAXLIST];
 };
 
 int kiemTraRong(danhsach &ds) { // tham chiếu đến vùng nhớ của ds được truyền vào
@@ -43,6 +46,7 @@ int kiemTraDay(danhsach &ds){
 int insertItem(danhsach &ds, int i, int info){
     if(i < 0 || i > ds.n) return 0;
     
+    // Di chuyển về phía bên phải
     for(int j = ds.n - 1; j >= i; j--){
         ds.nodes[j + 1] = ds.nodes[j];
     }
@@ -59,7 +63,7 @@ int deleteIndex(danhsach &ds, int i){
     // Vị trí thứ i này không lớn hơn ds.n
     if(i < 0 || kiemTraRong(ds) || i >= ds.n) return 0;
 
-    // Di chuyển tịnh tiến về bên trái, i = i + 1;
+    // Di chuyển tịnh tiến về bên trái, j = i + 1;
     for(int j = i + 1; j < ds.n; j++){
         ds.nodes[j - 1] = ds.nodes[j];
     }
@@ -149,6 +153,7 @@ void bubble_sort(danhsach &ds){
         }
     }
 }
+
 // Chọn vị trí đầu tiền là giá trị nhỏ nhất, hoán đổi với vị trí hiện tại nhỏ nhất nếu có
 // Rút ngắn vòng lặp thứ 2 bằng cách tăng i cho j
 void selection_sort(danhsach &ds){
@@ -174,6 +179,7 @@ void sinhvienInitiatier(ListSV &ds){
     
     for (int i = 0; i < ds.n; i++) {
         SV sv;
+        cout << "Enter student number" << i << ": ";
         cout << "Code: ";
         cin >> sv.maso;
         cin.ignore(); // loại bỏ '\n' sau khi nhập maso
@@ -183,6 +189,19 @@ void sinhvienInitiatier(ListSV &ds){
         cin.getline(sv.ho, 50);
         
         ds.nodes[i] = sv;
+    }
+}
+
+void releaseNodeSV(ListSV &ds){
+    if (ds.nodes != nullptr) {
+        // Cú pháp đúng để giải phóng mảng được cấp phát bằng 'new []'
+        delete[] ds.nodes;
+        
+        // Đặt lại con trỏ về nullptr để tránh sử dụng con trỏ rác
+        ds.nodes = nullptr;
+        ds.n = 0;
+        
+        cout << "\nDa giai phong vung nho cho danh sach sinh vien.";
     }
 }
 
@@ -217,6 +236,19 @@ int findSV(ListSV &ds, string info){
     return -1;
 }
 
+void checkRepeate(){
+    int ds[6] = {1, 2, 3, 3, 3, 3};
+    int check[5] = {0};
+    
+    for(int i = 0; i < 6; i++){
+        check[ds[i]]++;
+    }
+    
+    for(int i = 0; i < 5; i++){
+        cout << check[i] << " ,";
+    }
+}
+
 int menus(){
     int menu;
     cout << endl;
@@ -241,86 +273,90 @@ int menus(){
     return menu;
 }
  
-int main() {
-    danhsach ds;    // Khai báo biến ds
-    ListSV dssv;
-    int loop = true;
-    
-    while(loop)  {
-        int menu = menus();
-        
-        switch (menu) {
-            case 0:
-                loop = false;
-                break;
-            case 1:
-                createList(ds);
-                break;
-            case 2:
-                if(kiemTraRong(ds)){
-                    cout << "Danh sách rỗng";
-                }else{
-                    cout << "Danh sách có phần tử !";
-                }
-                break;
-            case 3:
-                if(kiemTraDay(ds)){
-                    cout << "Danh sách đầy";
-                }else{
-                    cout << "Danh sách chưa đầy";
-                }
-                break;
-            case 4:
-                traverse(ds);
-                break;
-            case 5:
-                int info;
-                cout << "Nhập thông tin bạn muốn tìm kiếm: ";
-                cin >> info;
-                search_info(ds, info);
-                if(search_info(ds, info) >= 0){
-                    cout << "Tìm thấy tại vị trí: " << search_info(ds, info) << endl;
-                }else{
-                    cout << "Không tìm thấy" << endl;
-                }
-                break;
-            case 6:
-                int infochen, vitri;
-                cout << "Nhập vị trí muốn chèn: ";
-                cin >> vitri;
-                cout << "Nhập giá trị muốn chèn: ";
-                cin >> infochen;
-                insertItem(ds, vitri, infochen);
-                break;
-            case 7:
-                bubble_sort(ds);
-                break;
-            case 8:
-                selection_sort(ds);
-            case 9:
-                int infosorted;
-                cout << "Nhập giá trị muốn chèn: ";
-                cin >> infosorted;
-                insert_item_sorted(ds, infosorted);
-                break;
-            case 10:
-                sinhvienInitiatier(dssv);
-                break;
-            case 11:
-                traverseSV(dssv);
-                break;
-            case 12: {
-                string name;
-                cout << "Nhập tên sinh viên cần tìm: ";
-                cin.ignore(); // Xóa bộ nhớ đệm còn lại sau khi nhập số ở menu
-                getline(cin, name); // Nhập cả chuỗi, bao gồm khoảng trắng
-                findSV(dssv, name); // Hàm tìm sinh viên theo tên
-                break;
-            }
-            default:
-                break;
-        }
-    }
-    
-    return 0;
-}
+//int main() {
+//    danhsach ds;    // Khai báo biến ds
+//    ListSV dssv;
+//    int loop = true;
+//    // checkRepeate();
+//    
+//    while(loop)  {
+//        int menu = menus();
+//        
+//        switch (menu) {
+//            case 0:
+//                loop = false;
+//                break;
+//            case 1:
+//                createList(ds);
+//                break;
+//            case 2:
+//                if(kiemTraRong(ds)){
+//                    cout << "Danh sách rỗng";
+//                }else{
+//                    cout << "Danh sách có phần tử !";
+//                }
+//                break;
+//            case 3:
+//                if(kiemTraDay(ds)){
+//                    cout << "Danh sách đầy";
+//                } else {
+//                    cout << "Danh sách chưa đầy";
+//                }
+//                break;
+//            case 4:
+//                traverse(ds);
+//                break;
+//            case 5:
+//                int info;
+//                cout << "Nhập thông tin bạn muốn tìm kiếm: ";
+//                cin >> info;
+//                search_info(ds, info);
+//                if(search_info(ds, info) >= 0){
+//                    cout << "Tìm thấy tại vị trí: " << search_info(ds, info) << endl;
+//                }else{
+//                    cout << "Không tìm thấy" << endl;
+//                }
+//                break;
+//            case 6:
+//                int infochen, vitri;
+//                cout << "Nhập vị trí muốn chèn: ";
+//                cin >> vitri;
+//                cout << "Nhập giá trị muốn chèn: ";
+//                cin >> infochen;
+//                insertItem(ds, vitri, infochen);
+//                break;
+//            case 7:
+//                bubble_sort(ds);
+//                break;
+//            case 8:
+//                selection_sort(ds);
+//            case 9:
+//                int infosorted;
+//                cout << "Nhập giá trị muốn chèn: ";
+//                cin >> infosorted;
+//                insert_item_sorted(ds, infosorted);
+//                break;
+//            case 10:
+//                sinhvienInitiatier(dssv);
+//                break;
+//            case 11:
+//                traverseSV(dssv);
+//                break;
+//            case 12: {
+//                string name;
+//                cout << "Nhập tên sinh viên cần tìm: ";
+//                cin.ignore(); // Xóa bộ nhớ đệm còn lại sau khi nhập số ở menu
+//                getline(cin, name); // Nhập cả chuỗi, bao gồm khoảng trắng
+//                findSV(dssv, name); // Hàm tìm sinh viên theo tên
+//                break;
+//            }
+//            default:
+//                break;
+//        }
+//    }
+//    
+//    // Xóa bộ nhớ cấp phát động.
+//    releaseNodeSV(dssv);
+//    
+//    return 0;
+//}
