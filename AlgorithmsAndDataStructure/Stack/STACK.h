@@ -8,7 +8,6 @@
 #ifndef STACK_H
 #define STACK_H
 
-
 #define STACKSIZE 6
 
 // Khai báo cấu trúc của stack
