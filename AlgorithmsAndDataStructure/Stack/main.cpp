@@ -86,29 +86,29 @@ int menusStack(){
     return menu;
 }
 
-int main(){
-    
-    Stack st;
-    initStack(st);
-    
-    bool loop = true;
-    
-    while(loop)  {
-         int menu = menusStack();
-        switch (menu) {
-            case 0:
-                loop = false;
-                break;
-            case 1:
-                insertFunction(st);
-                break;
-            case 2:
-                traverseFromTop(st);
-                break;
-            default:
-                break;
-        }
-    }
-    
-    return 1;
-}
+//int main(){
+//    
+//    Stack st;
+//    initStack(st);
+//    
+//    bool loop = true;
+//    
+//    while(loop)  {
+//         int menu = menusStack();
+//        switch (menu) {
+//            case 0:
+//                loop = false;
+//                break;
+//            case 1:
+//                insertFunction(st);
+//                break;
+//            case 2:
+//                traverseFromTop(st);
+//                break;
+//            default:
+//                break;
+//        }
+//    }
+//    
+//    return 1;
+//}

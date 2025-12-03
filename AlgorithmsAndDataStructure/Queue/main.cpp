@@ -58,18 +58,18 @@ int dequeue(Queue &q, int x){
     return value;
 }
 
-int main(){
-    
-    Queue q;
-    intitQueue(q);
-    
-    bool loop = true;
-    
-    while(loop)  {
-            default:
-                break;
-        }
-    }
-    
-    return 1;
-}
+//int main(){
+//    
+//    Queue q;
+//    intitQueue(q);
+//    
+//    bool loop = true;
+//    
+////    while(loop)  {
+////            default:
+////                break;
+////        }
+////    }
+//    
+//    return 1;
+//}
